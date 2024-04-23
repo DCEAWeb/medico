@@ -1,32 +1,46 @@
-﻿<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Citas de hoy</h5>
-        <ul class="list-group list-group-light">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="fw-bold">John Doe</div>
-                    <div class="text-muted">john.doe@gmail.com</div>
-                </div>
-                <span class="badge rounded-pill badge-success">Active</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="fw-bold">Alex Ray</div>
-                    <div class="text-muted">alex.ray@gmail.com</div>
-                </div>
-                <span class="badge rounded-pill badge-primary">Onboarding</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="fw-bold">Kate Hunington</div>
-                    <div class="text-muted">kate.hunington@gmail.com</div>
-                </div>
-                <span class="badge rounded-pill badge-warning">Awaiting</span>
-            </li>
-        </ul>
+﻿@using Medico.Models
+@using Medico.Services
+@inject ICitas iCitas
+
+@if(citas.Count > 0)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Citas de hoy</h5>
+            <ul class="list-group list-group-light">
+                @foreach(var cita in citas)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold">@cita.Paciente.Nombre @cita.Paciente.PrimerApellido</div>
+                            <div class="text-muted">@cita.Fecha</div>
+                        </div>
+                        @if(cita.Fecha > DateTime.Now)
+                        {
+                            <span class="badge rounded-pill badge-success">Próxima</span>
+                        }
+                        else
+                        {
+                            <span class="badge rounded-pill badge-danger">Vencida</span>
+                        }
+
+                    </li>
+                }
+            </ul>
+        </div>
     </div>
-</div>
+}
+else
+{
+    <p>Loading ...</p>
+}
+
 
 @code {
+    List<Cita> citas = new List<Cita>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        citas = await iCitas.ObtenerCitasHoy();
+    }
 }
