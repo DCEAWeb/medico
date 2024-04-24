@@ -1,0 +1,39 @@
+﻿@using Medico.Models
+@using Medico.Services
+@rendermode InteractiveServer
+@inject IPaciente pacienteService
+
+<div class="card" style="width:75%;margin:auto">
+    <div class="card-header">
+        Pacientes
+    </div>
+    <div class="card-body">
+        <ul class="list-group">
+            @foreach(var paciente in pacientes)
+            {
+                /*ROMO861110HGTDRM00*/
+                string dia, mes, year;
+                dia = paciente.CURP.Substring(8, 2);
+                mes = paciente.CURP.Substring(6, 2);
+                year = paciente.CURP.Substring(4, 2);
+
+                DateOnly fechaNacimiento = new DateOnly(int.Parse(year), int.Parse(mes), int.Parse(dia));
+
+                <li class="list-group-item">@paciente.Nombre @paciente.PrimerApellido
+                    <span class="badge text-bg-primary rounded-pill">14</span>
+                </li>
+            }           
+        </ul>
+    </div>
+</div>
+
+
+@code {
+    List<Paciente> pacientes = new List<Paciente>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        pacientes= await pacienteService.ListarPacientes();
+    }
+
+}
