@@ -2,30 +2,32 @@
 @using Medico.Services
 @inject ICitas iCitas
 
-@if(citas.Count > 0)
+@if(citas != null && citas.Count > 0)
 {
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Citas de hoy</h5>
             <ul class="list-group list-group-light">
-                @foreach(var cita in citas)
+                @if (citas != null && citas.Count() > 0)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-bold">@cita.Paciente.Nombre @cita.Paciente.PrimerApellido</div>
-                            <div class="text-muted">@cita.Fecha</div>
-                        </div>
-                        @if(cita.Fecha > DateTime.Now)
-                        {
-                            <span class="badge rounded-pill badge-success">Próxima</span>
-                        }
-                        else
-                        {
-                            <span class="badge rounded-pill badge-danger">Vencida</span>
-                        }
-
-                    </li>
-                }
+                    @foreach (var cita in citas)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">@cita.Paciente.Nombre @cita.Paciente.PrimerApellido</div>
+                                <div class="text-muted">@cita.Fecha</div>
+                            </div>
+                            @if (cita.Fecha > DateTime.Now)
+                            {
+                                <span class="badge rounded-pill badge-success">Próxima</span>
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill badge-danger">Vencida</span>
+                            }
+                        </li>
+                    }
+                }               
             </ul>
         </div>
     </div>
@@ -37,10 +39,11 @@ else
 
 
 @code {
-    List<Cita> citas = new List<Cita>();
+    [Parameter]
+    public List<Cita> citas { get; set; } = new List<Cita>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        citas = await iCitas.ObtenerCitasHoy();
-    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     citas = await iCitas.ObtenerCitasHoy();
+    // }
 }

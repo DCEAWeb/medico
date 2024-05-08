@@ -1,7 +1,20 @@
 ﻿@page "/"
+@using Medico.Models
+@using Medico.Services
+@inject ICitas iCitas
 
 <div class="row mt-3">
     <div class="col-4">
-        <CitasHoy></CitasHoy>
+        <CitasHoy citas="citas"></CitasHoy>
     </div>
 </div>
+
+@code{
+
+    List<Cita> citas = new List<Cita>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        citas = await iCitas.ObtenerCitasHoy();
+    }
+}

@@ -4,42 +4,68 @@
 @inject ICitas iCitas
 @rendermode InteractiveServer
 
-<div class="card m-5" style="width:40%;text-align:center">
-    <div class="card-header">
-        Nueva cita
-    </div>
-    <div class="card-body">
-        <EditForm Model="cita" OnValidSubmit="Registro">
-            <select class="form-select mb-2" @bind="cita.PacienteId">
-            @foreach (var paciente in pacientes)
-            {
-                <option value="@paciente.Id">@paciente.Nombre</option>
-            }        
-        </select>
-            <div class="mb-2">
-            <input type="text" id="form12" class="form-control" @bind-value="cita.Fecha"/>
-            <label class="form-label" for="form12">Fecha y hora</label>
+
+<MudThemeProvider />
+
+<MudGrid>
+    <MudItem md="6">
+        <div class="card m-5" style="width:90%;text-align:center">
+            <div class="card-header">
+                Nueva cita
+            </div>
+            <div class="card-body">
+                <EditForm Model="cita" OnValidSubmit="Registro">
+                    <select class="form-select mb-2" @bind="cita.PacienteId">
+                        <option value="0" disabled="disabled">Selecciona al paciente</option>
+                        @foreach (var paciente in pacientes)
+                        {
+                            <option value="@paciente.Id">@paciente.Nombre</option>
+                        }
+                    </select>
+                    <div class="mb-2">
+                        <MudDatePicker Label="Fecha" @bind-Date="cita.Fecha" />
+                    </div>
+                    <div class="mb-2">
+                        <MudTimePicker Label="Hora" @bind-Time="time" />
+                    </div>
+                    <div class="mb-2">
+                        <textarea class="form-control" id="textAreaExample" rows="4" @bind="cita.Observaciones"></textarea>
+                        <label class="form-label" for="textAreaExample">Observaciones</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </EditForm>
+            </div>
         </div>
-            <div class="mb-2">
-            <textarea class="form-control" id="textAreaExample" rows="4" @bind="cita.Observaciones"></textarea>
-            <label class="form-label" for="textAreaExample">Observaciones</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Registrar</button>
-        </EditForm>
-    </div>
-</div>
+    </MudItem>
+    <MudItem md="6" Class="mt-5 pr-5">
+        <CitasHoy citas="citas" />
+    </MudItem>
+</MudGrid>
 
 @code {
+
     List<Paciente> pacientes = new List<Paciente>();
     Cita cita = new Cita();
+    List<Cita> citas = new List<Cita>();
+    TimeSpan? time = new TimeSpan(00, 00, 00);
 
     protected override async Task OnInitializedAsync()
     { 
         pacientes = await iCitas.Pacientes();
+        citas = await iCitas.ObtenerCitasHoy();
     }
 
     async void Registro()
     {
+        cita.Fecha = new DateTime(
+            cita.Fecha.Value.Year, 
+            cita.Fecha.Value.Month, 
+            cita.Fecha.Value.Day, 
+            time.Value.Hours, 
+            time.Value.Minutes, 
+            time.Value.Seconds);
         var respuesta = await iCitas.AgendarCita(cita);
+        citas = await iCitas.ObtenerCitasHoy();
+        StateHasChanged();
     }
 }
