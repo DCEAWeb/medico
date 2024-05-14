@@ -32,5 +32,28 @@ namespace Medico.Services
             await context.SaveChangesAsync();
             return cita;
         }
+
+        public async Task BorrarCita(int id)
+        {
+            var cita = await context.Citas.FindAsync(id);
+            if(cita != null)
+            {
+                context.Citas.Remove(cita);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Cita> ModificarCita(Cita cita)
+        {
+            context.Citas.Update(cita);
+            await context.SaveChangesAsync();
+            return cita;
+        }
+
+        public async Task<Cita> ObtenerCita(int id)
+        {
+            var cita = await context.Citas.FindAsync(id);
+            return cita;
+        }
     }
 }

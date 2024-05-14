@@ -1,6 +1,11 @@
 ﻿@using Medico.Models
 @using Medico.Services
 @inject ICitas iCitas
+@inject NavigationManager navigation
+
+@rendermode InteractiveServer
+
+<MudThemeProvider />
 
 @if(citas != null && citas.Count > 0)
 {
@@ -25,6 +30,10 @@
                             {
                                 <span class="badge rounded-pill badge-danger">Vencida</span>
                             }
+                            <div>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => Borrar(cita.Id)" aria-label="eliminar"></MudIconButton>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" OnClick="() => Modificar(cita.Id)" aria-label="editar"></MudIconButton>
+                            </div>
                         </li>
                     }
                 }               
@@ -46,4 +55,16 @@ else
     // {
     //     citas = await iCitas.ObtenerCitasHoy();
     // }
+
+    async void Borrar(int id)
+    {
+        await iCitas.BorrarCita(id);
+        citas = await iCitas.ObtenerCitasHoy();
+        StateHasChanged();
+    }
+
+    async void Modificar(int id)
+    {
+        navigation.NavigateTo($"/modificar/{id}");
+    }
 }

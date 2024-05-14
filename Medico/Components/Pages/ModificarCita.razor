@@ -1,0 +1,73 @@
+﻿@page "/modificar/{id:int}"
+@using Medico.Models
+@using Medico.Services
+@inject ICitas iCitas
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+
+
+<MudThemeProvider />
+
+<MudGrid>
+    <MudItem md="6">
+        <div class="card m-5" style="width:90%;text-align:center">
+            <div class="card-header">
+                Nueva cita
+            </div>
+            <div class="card-body">
+                <EditForm Model="cita" OnValidSubmit="Modificar">
+                    <select class="form-select mb-2" @bind="cita.PacienteId">
+                        <option value="0" disabled="disabled">Selecciona al paciente</option>
+                        @foreach (var paciente in pacientes)
+                        {
+                            <option value="@paciente.Id">@paciente.Nombre</option>
+                        }
+                    </select>
+                    <div class="mb-2">
+                        <MudDatePicker Label="Fecha" @bind-Date="cita.Fecha" />
+                    </div>
+                    <div class="mb-2">
+                        <MudTimePicker Label="Hora" @bind-Time="time" />
+                    </div>
+                    <div class="mb-2">
+                        <textarea class="form-control" id="textAreaExample" rows="4" @bind="cita.Observaciones"></textarea>
+                        <label class="form-label" for="textAreaExample">Observaciones</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                </EditForm>
+            </div>
+        </div>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    [Parameter]
+    public int id { get; set; }
+
+    List<Paciente> pacientes = new List<Paciente>();
+    Cita cita = new Cita();
+    TimeSpan? time = new TimeSpan(00, 00, 00);
+
+    protected override async Task OnInitializedAsync()
+    { 
+        pacientes = await iCitas.Pacientes();
+        cita = await iCitas.ObtenerCita(id);
+        time = new TimeSpan(cita.Fecha.Value.Hour, 
+               cita.Fecha.Value.Minute, cita.Fecha.Value.Second);
+    }
+
+    async Task Modificar()
+    {
+        cita.Fecha = new DateTime(
+            cita.Fecha.Value.Year,
+            cita.Fecha.Value.Month,
+            cita.Fecha.Value.Day,
+            time.Value.Hours,
+            time.Value.Minutes,
+            time.Value.Seconds);
+
+        await iCitas.ModificarCita(cita);
+        navigation.NavigateTo("/");
+    }
+}
